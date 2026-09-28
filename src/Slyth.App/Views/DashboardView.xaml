@@ -1,0 +1,194 @@
+<UserControl x:Class="Slyth.App.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="clr-namespace:Slyth.App.Controls">
+    <UserControl.Resources>
+        <Style x:Key="StatCard" TargetType="Border" BasedOn="{StaticResource Card}">
+            <Setter Property="Padding" Value="22,20" />
+        </Style>
+        <Style x:Key="StatusLabel" TargetType="TextBlock" BasedOn="{StaticResource Body}">
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="StatusValue" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="44,40,44,36">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel>
+            <TextBlock ui:Spaced.Text="Painel" Style="{StaticResource Label}" />
+            <TextBlock Text="Seu PC, no limite." Style="{StaticResource H1}" Margin="0,8,0,6" />
+            <TextBlock Style="{StaticResource Body}">
+                <Run Text="Escolha um modo e otimize em um clique. " />
+                <Run Text="{Binding AppliedCount, Mode=OneWay}" Foreground="{StaticResource TextPrimary}" />
+                <Run Text="de" />
+                <Run Text="{Binding TotalCount, Mode=OneWay}" Foreground="{StaticResource TextPrimary}" />
+                <Run Text="ajustes já estão ativos neste PC." />
+            </TextBlock>
+        </StackPanel>
+
+        <Grid Grid.Row="1" Margin="0,28,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1.08*" />
+                <ColumnDefinition Width="20" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- ============ Herói: anel + botão ============ -->
+            <Border Style="{StaticResource Card}" Background="{StaticResource HeroGlow}" Padding="34,30" CornerRadius="24">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Bottom">
+                        <ListBox Style="{StaticResource Segmented}" ItemsSource="{Binding PresetOptions}" SelectedItem="{Binding SelectedPreset}"
+                                 DisplayMemberPath="Name" IsEnabled="{Binding IsBusy, Converter={StaticResource Eq}, ConverterParameter=False}" />
+                        <TextBlock Style="{StaticResource Body}" TextAlignment="Center" Margin="0,12,0,18" FontSize="12.5" MinHeight="38"
+                                   Text="{Binding SelectedPreset.Description}" />
+                        <Button Style="{StaticResource PrimaryButton}" Height="58" Command="{Binding OptimizeCommand}">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" Visibility="{Binding IsBusy, Converter={StaticResource NotBoolVis}}">
+                                    <TextBlock Text="&#xE945;" Style="{StaticResource Icon}" Foreground="{StaticResource Inverse}" FontSize="15" Margin="0,0,12,0" />
+                                    <TextBlock ui:Spaced.Text="Otimizar" FontSize="14.5" FontWeight="Bold" VerticalAlignment="Center" />
+                                    <TextBlock FontSize="12.5" FontWeight="SemiBold" Opacity="0.5" VerticalAlignment="Center" Margin="14,0,0,0">
+                                        <Run Text="{Binding SelectedCount, Mode=OneWay}" /><Run Text=" ajustes" />
+                                    </TextBlock>
+                                </StackPanel>
+                                <TextBlock ui:Spaced.Text="Otimizando" FontSize="14.5" FontWeight="Bold" VerticalAlignment="Center"
+                                           Visibility="{Binding IsBusy, Converter={StaticResource BoolVis}}" />
+                            </Grid>
+                        </Button>
+                        <TextBlock Style="{StaticResource Label}" HorizontalAlignment="Center" Margin="0,14,0,0" FontWeight="Normal" FontSize="11"
+                                   Text="Ponto de restauração + backup automático antes de qualquer mudança" />
+                    </StackPanel>
+
+                    <Grid Margin="0,0,0,24">
+                        <Ellipse Fill="{StaticResource Halo}" Width="440" Height="440" IsHitTestVisible="False" />
+                        <Viewbox MaxWidth="330" MaxHeight="330" Stretch="Uniform">
+                            <Grid Width="330" Height="330">
+                                <ui:ScoreRing Thickness="12" Value="{Binding Score}" Progress="{Binding Progress}" IsBusy="{Binding IsBusy}">
+                                    <ui:ScoreRing.Effect>
+                                        <DropShadowEffect Color="White" BlurRadius="38" ShadowDepth="0" Opacity="0.22" />
+                                    </ui:ScoreRing.Effect>
+                                </ui:ScoreRing>
+
+                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                            Visibility="{Binding IsBusy, Converter={StaticResource NotBoolVis}}">
+                                    <TextBlock ui:Spaced.Text="Pontuação" Style="{StaticResource Label}" HorizontalAlignment="Center" />
+                                    <TextBlock Text="{Binding Score}" FontFamily="{StaticResource DisplayFont}" FontSize="92" FontWeight="Light"
+                                               HorizontalAlignment="Center" Margin="0,-6,0,-8" />
+                                    <TextBlock Text="{Binding ScoreLabel}" Style="{StaticResource Body}" HorizontalAlignment="Center" FontSize="13" />
+                                </StackPanel>
+
+                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="190"
+                                            Visibility="{Binding IsBusy, Converter={StaticResource BoolVis}}">
+                                    <TextBlock ui:Spaced.Text="Otimizando" Style="{StaticResource Label}" HorizontalAlignment="Center" />
+                                    <TextBlock Text="{Binding Progress, StringFormat={}{0:P0}}" FontFamily="{StaticResource DisplayFont}" FontSize="74"
+                                               FontWeight="Light" HorizontalAlignment="Center" Margin="0,-4,0,-4" />
+                                    <TextBlock Text="{Binding ProgressText}" Style="{StaticResource Body}" TextAlignment="Center" FontSize="12"
+                                               TextTrimming="CharacterEllipsis" MaxHeight="40" />
+                                </StackPanel>
+                            </Grid>
+                        </Viewbox>
+                    </Grid>
+                </DockPanel>
+            </Border>
+
+            <!-- ============ Coluna direita ============ -->
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="20" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <!-- CPU -->
+                <Border Style="{StaticResource StatCard}">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top" ui:Spaced.Text="Processador" Style="{StaticResource Label}" />
+                        <TextBlock DockPanel.Dock="Top" Style="{StaticResource BigNumber}" Margin="0,8,0,0">
+                            <Run Text="{Binding Monitor.CpuPercent, Mode=OneWay}" /><Run Text="%" FontSize="18" Foreground="{StaticResource TextTertiary}" />
+                        </TextBlock>
+                        <ui:Sparkline Points="{Binding Monitor.CpuLine}" MinHeight="40" Margin="0,10,0,0" />
+                    </DockPanel>
+                </Border>
+
+                <!-- Memória -->
+                <Border Grid.Column="2" Style="{StaticResource StatCard}">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top" ui:Spaced.Text="Memória" Style="{StaticResource Label}" />
+                        <TextBlock DockPanel.Dock="Top" Style="{StaticResource BigNumber}" Margin="0,8,0,0">
+                            <Run Text="{Binding Monitor.RamPercent, Mode=OneWay}" /><Run Text="%" FontSize="18" Foreground="{StaticResource TextTertiary}" />
+                        </TextBlock>
+                        <TextBlock DockPanel.Dock="Bottom" Style="{StaticResource Body}" FontSize="11.5" Text="{Binding Monitor.RamText}" Margin="0,8,0,0" />
+                        <ui:Sparkline Points="{Binding Monitor.RamLine}" MinHeight="30" Margin="0,10,0,0" />
+                    </DockPanel>
+                </Border>
+
+                <!-- Disco -->
+                <Border Grid.Row="2" Style="{StaticResource StatCard}">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top" ui:Spaced.Text="Disco do sistema" Style="{StaticResource Label}" />
+                        <TextBlock DockPanel.Dock="Top" Style="{StaticResource BigNumber}" Margin="0,8,0,0">
+                            <Run Text="{Binding Monitor.DiskPercent, Mode=OneWay, StringFormat={}{0:0}}" /><Run Text="%" FontSize="18" Foreground="{StaticResource TextTertiary}" />
+                        </TextBlock>
+                        <StackPanel VerticalAlignment="Bottom">
+                            <ProgressBar Style="{StaticResource Meter}" Value="{Binding Monitor.DiskPercent, Mode=OneWay}" />
+                            <TextBlock Style="{StaticResource Body}" FontSize="11.5" Text="{Binding Monitor.DiskText}" Margin="0,10,0,0" />
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
+
+                <!-- Processos -->
+                <Border Grid.Row="2" Grid.Column="2" Style="{StaticResource StatCard}">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Top" ui:Spaced.Text="Processos" Style="{StaticResource Label}" />
+                        <TextBlock DockPanel.Dock="Top" Style="{StaticResource BigNumber}" Margin="0,8,0,0" Text="{Binding Monitor.ProcessCount}" />
+                        <TextBlock Style="{StaticResource Body}" FontSize="11.5" Text="{Binding Monitor.UptimeText}" VerticalAlignment="Bottom" />
+                    </DockPanel>
+                </Border>
+
+                <!-- Status -->
+                <Border Grid.Row="4" Grid.ColumnSpan="3" Style="{StaticResource Card}" Padding="24,10">
+                    <StackPanel>
+                        <Grid Height="46">
+                            <TextBlock Text="Ajustes ativos" Style="{StaticResource StatusLabel}" />
+                            <TextBlock Style="{StaticResource StatusValue}">
+                                <Run Text="{Binding AppliedCount, Mode=OneWay}" /><Run Text=" / " Foreground="{StaticResource TextTertiary}" /><Run Text="{Binding TotalCount, Mode=OneWay}" Foreground="{StaticResource TextTertiary}" />
+                            </TextBlock>
+                        </Grid>
+                        <Border Style="{StaticResource Divider}" />
+                        <Grid Height="46">
+                            <TextBlock Text="Última otimização" Style="{StaticResource StatusLabel}" />
+                            <TextBlock Text="{Binding LastRun}" Style="{StaticResource StatusValue}" />
+                        </Grid>
+                        <Border Style="{StaticResource Divider}" />
+                        <Grid Height="46">
+                            <TextBlock Text="BIOS" Style="{StaticResource StatusLabel}" />
+                            <Button Style="{StaticResource LinkButton}" HorizontalAlignment="Right" Command="{Binding NavigateCommand}" CommandParameter="Bios">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock FontSize="13" FontWeight="SemiBold">
+                                        <Run Text="{Binding BiosActionCount, Mode=OneWay}" /><Run Text=" recomendações" />
+                                    </TextBlock>
+                                    <TextBlock Text="&#xE76C;" Style="{StaticResource Icon}" FontSize="10" Margin="8,1,0,0" Foreground="{StaticResource TextTertiary}" />
+                                </StackPanel>
+                            </Button>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

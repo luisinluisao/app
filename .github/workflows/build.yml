@@ -16,15 +16,15 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Testes
-        run: dotnet test tests/PcOptimizer.Core.Tests -c Release
+        run: dotnet test tests/Slyth.Core.Tests -c Release
 
       - name: Gerar executável
         run: >
-          dotnet publish src/PcOptimizer.App -c Release -r win-x64 --self-contained true
+          dotnet publish src/Slyth.App -c Release -r win-x64 --self-contained true
           -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
           -o publish
 
       - uses: actions/upload-artifact@v4
         with:
-          name: PcOptimizer-win-x64
-          path: publish/PcOptimizer.exe
+          name: SlythOptimizer-win-x64
+          path: publish/SlythOptimizer.exe

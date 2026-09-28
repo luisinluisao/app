@@ -5,32 +5,37 @@ Tudo o que ele muda é salvo antes e pode ser desfeito com um botão.
 
 ## Telas
 
-- **Painel** — anel de pontuação animado (0–100) com base no que já está otimizado, CPU e memória
-  ao vivo com minigráficos, disco, processos e o botão **Otimizar** com três modos:
-  **Seguro**, **Gamer** e **Extremo**.
-- **Otimizações** — os 54 ajustes com busca, filtro por categoria e interruptor em cada um.
+- **Painel** — anel de pontuação animado (0–100), CPU e memória ao vivo com minigráficos, disco,
+  processos, programas na inicialização e o botão **Otimizar** com três modos: **Seguro**, **Gamer** e **Extremo**.
+- **Otimizações** — os 71 ajustes com busca, filtro por categoria e interruptor em cada um.
+- **Rede** — teste de ping, variação (jitter) e perda de pacotes com gráfico ao vivo, e comparação
+  real de velocidade entre DNS (operadora, Cloudflare, Google, Quad9, OpenDNS) com troca em um clique.
+- **Inicialização** — programas que abrem com o Windows, com editor e local, para ligar/desligar
+  (mesmo mecanismo do Gerenciador de Tarefas; nada é apagado).
 - **BIOS e hardware** — ficha técnica do PC e recomendações de BIOS com o caminho exato no menu
   da sua placa-mãe (ASUS, MSI, Gigabyte, ASRock, Dell, HP, Lenovo, Acer) + botão *Reiniciar direto na BIOS*.
 - **Histórico** — linha do tempo de cada otimização com botão *Desfazer*.
 
-## Otimizações (54)
+## Otimizações (71)
 
 | Categoria | O que faz |
 |---|---|
-| **Desempenho** (10) | Plano de alto desempenho, prioridade MMCSS, inicialização sem atraso, menos escrita NTFS, prioridade para o programa ativo, Power Throttling, apps em segundo plano, desligamento rápido, hibernação, nomes 8.3 |
-| **Jogos** (6) | Modo de Jogo, Game DVR, agendamento de GPU por hardware, otimizações para jogos em janela, pop-ups da Game Bar, tela cheia exclusiva |
-| **Rede** (5) | Upload P2P de atualizações, limpar DNS, limitação de rede, Nagle (latência), DNS Cloudflare |
-| **Privacidade** (9) | Telemetria, ID de anúncios, propagandas e apps instalados sozinhos, Bing no Iniciar, histórico de atividades, feedback, Recall, Copilot, Widgets |
-| **Serviços** (9) | Demonstração de loja, registro remoto, mapas, relatório de erros, fax, SysMain, indexação, spooler de impressão, Xbox |
+| **Desempenho** (16) | Plano de alto desempenho, prioridade MMCSS, inicialização sem atraso, menos escrita NTFS, pastas abrindo na hora, Sensor de Armazenamento, prioridade para o programa ativo, Power Throttling, USB sem suspensão, navegadores sem rodar escondidos, apps em segundo plano, desligamento rápido, cache NTFS maior, armazenamento reservado, hibernação, nomes 8.3 |
+| **Jogos** (10) | Modo de Jogo, Game DVR, agendamento de GPU, jogos em janela, pop-ups da Game Bar, som que não abaixa sozinho, sem Teclas de Aderência, Windows Update sem trocar driver de vídeo, correção de MPO, tela cheia exclusiva |
+| **Rede** (5) | Upload P2P de atualizações, limpar DNS, limitação de rede, Nagle (latência), placa de rede sem economia de energia |
+| **Privacidade** (11) | Telemetria, tarefas agendadas escondidas, ID de anúncios, propagandas, Bing no Iniciar, histórico de atividades, feedback, notificações de dicas, Recall, Copilot, Widgets |
+| **Serviços** (14) | Demonstração de loja, registro remoto, mapas, relatório de erros, fax, telemetria NVIDIA, rastreamento de links, compartilhamento de mídia, Insider, assistente de compatibilidade, SysMain, indexação, impressão, Xbox |
 | **Limpeza** (10) | Temporários, cache do Windows Update, otimização de entrega, dumps de erro, navegadores, Discord/Steam/Spotify, cache de shaders, Lixeira, WinSxS, TRIM/desfragmentação |
 | **Visual e entrada** (5) | Menus instantâneos, aceleração do mouse, teclado responsivo, efeitos visuais, transparência |
+
+O Slyth não inclui ajustes que desligam proteções de segurança do Windows nem "tweaks" sem efeito comprovado.
 
 Cada ajuste tem um nível; cada modo inclui o anterior:
 
 - **Seguro** — sem efeito colateral, bom para qualquer PC.
 - **Gamer** — + jogos, rede, entrada, serviços pouco usados e caches.
 - **Extremo** — + indexação, SysMain, hibernação, efeitos visuais e limpeza profunda.
-- **Manual** — nunca marcado automaticamente (DNS, impressora, Xbox): só se o usuário escolher.
+- **Manual** — nunca marcado automaticamente (MPO, impressora, Xbox): só se o usuário escolher.
 
 Ao otimizar, o Slyth cria um ponto de restauração do Windows e salva o valor anterior de cada
 configuração em `%ProgramData%\SlythOptimizer\Backups`. Se um ajuste falhar, ele é desfeito sozinho.

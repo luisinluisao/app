@@ -14,6 +14,8 @@ public static class TweakCatalog
     private const string ContentDelivery = @"Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager";
     private const string Desktop = @"Control Panel\Desktop";
     private const string GameConfig = @"System\GameConfigStore";
+    private const string UsbSubgroup = "2a737441-1930-4402-8d77-b2bebba308a3";
+    private const string UsbSelectiveSuspend = "48e6b7a6-50f5-4782-a5d4-53bb8f07e226";
 
     private static RegistryValue D(int value) => RegistryValue.Dword(value);
 
@@ -109,6 +111,60 @@ public static class TweakCatalog
         },
         new RegistryTweak
         {
+            Id = "folder-discovery-off", Level = Safe, Category = TweakCategory.Performance,
+            Name = "Pastas abrem na hora",
+            Description = "O Explorer analisa o conteúdo de cada pasta para adivinhar o tipo (fotos, músicas...). " +
+                "Em pastas grandes isso deixa a abertura lenta. Desligar deixa tudo instantâneo.",
+            Settings = [new(CurrentUser, @"Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell", "FolderType", S("NotSpecified"))],
+        },
+        new RegistryTweak
+        {
+            Id = "storage-sense", Level = Safe, Category = TweakCategory.Performance,
+            Name = "Limpeza automática do Windows (Sensor de Armazenamento)",
+            Description = "Liga a limpeza automática de temporários e da Lixeira antiga, para o disco não encher de novo com o tempo.",
+            Settings = [new(CurrentUser, @"Software\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy", "01", D(1))],
+        },
+        new CommandTweak
+        {
+            Id = "usb-suspend-off", Level = Gamer, Category = TweakCategory.Performance,
+            Name = "USB sem suspensão seletiva",
+            Description = "Impede o Windows de \"adormecer\" portas USB para economizar energia. " +
+                "Evita mouse, teclado e headset travando ou desconectando por um instante.",
+            Command = ("cmd", $"/c powercfg /setacvalueindex scheme_current {UsbSubgroup} {UsbSelectiveSuspend} 0 && powercfg /setactive scheme_current"),
+            Revert = ("cmd", $"/c powercfg /setacvalueindex scheme_current {UsbSubgroup} {UsbSelectiveSuspend} 1 && powercfg /setactive scheme_current"),
+        },
+        new RegistryTweak
+        {
+            Id = "browser-background-off", Level = Gamer, Category = TweakCategory.Performance,
+            Name = "Navegadores sem rodar escondidos",
+            Description = "Edge e Chrome continuam rodando depois de fechados e o Edge pré-carrega ao ligar o PC. " +
+                "Isso libera memória e CPU. Os navegadores passam a mostrar \"gerenciado pela organização\" (normal).",
+            Settings =
+            [
+                new(LocalMachine, @"SOFTWARE\Policies\Microsoft\Edge", "StartupBoostEnabled", D(0)),
+                new(LocalMachine, @"SOFTWARE\Policies\Microsoft\Edge", "BackgroundModeEnabled", D(0)),
+                new(LocalMachine, @"SOFTWARE\Policies\Google\Chrome", "BackgroundModeEnabled", D(0)),
+            ],
+        },
+        new RegistryTweak
+        {
+            Id = "ntfs-memory", Level = Extreme, Category = TweakCategory.Performance,
+            Name = "Mais memória para o cache de arquivos",
+            Description = "Aumenta a memória que o Windows reserva para lembrar onde estão os arquivos (opção documentada do NTFS). " +
+                "Acelera jogos e programas com milhares de arquivos. Recomendado com 16 GB de RAM ou mais.",
+            RequiresRestart = true,
+            Settings = [new(LocalMachine, @"SYSTEM\CurrentControlSet\Control\FileSystem", "NtfsMemoryUsage", D(2))],
+        },
+        new CommandTweak
+        {
+            Id = "reserved-storage-off", Level = Extreme, Category = TweakCategory.Performance, Timeout = TimeSpan.FromMinutes(5),
+            Name = "Liberar armazenamento reservado",
+            Description = "O Windows reserva cerca de 7 GB do disco para atualizações. Desligar libera esse espaço (recurso oficial da Microsoft).",
+            Command = ("dism", "/Online /Set-ReservedStorageState /State:Disabled /NoRestart"),
+            Revert = ("dism", "/Online /Set-ReservedStorageState /State:Enabled /NoRestart"),
+        },
+        new RegistryTweak
+        {
             Id = "ntfs-8dot3-off", Level = Extreme, Category = TweakCategory.Performance,
             Name = "Desligar nomes curtos 8.3",
             Description = "Para de criar nomes no estilo antigo (ARQUIV~1.TXT) para cada arquivo novo, acelerando pastas grandes.",
@@ -164,6 +220,41 @@ public static class TweakCatalog
         },
         new RegistryTweak
         {
+            Id = "audio-ducking-off", Level = Safe, Category = TweakCategory.Gaming,
+            Name = "Som do jogo não abaixa sozinho",
+            Description = "Quando detecta uma chamada de voz (Discord, WhatsApp), o Windows abaixa o volume do resto — inclusive o jogo. Isso desliga.",
+            Settings = [new(CurrentUser, @"Software\Microsoft\Multimedia\Audio", "UserDuckingPreference", D(3))],
+        },
+        new RegistryTweak
+        {
+            Id = "sticky-keys-off", Level = Gamer, Category = TweakCategory.Gaming,
+            Name = "Sem janela de Teclas de Aderência no jogo",
+            Description = "Apertar Shift 5 vezes (comum em jogos) abre a janela de acessibilidade e minimiza o jogo. Desliga só o atalho.",
+            Settings =
+            [
+                new(CurrentUser, @"Control Panel\Accessibility\StickyKeys", "Flags", S("506")),
+                new(CurrentUser, @"Control Panel\Accessibility\ToggleKeys", "Flags", S("58")),
+                new(CurrentUser, @"Control Panel\Accessibility\Keyboard Response", "Flags", S("122")),
+            ],
+        },
+        new RegistryTweak
+        {
+            Id = "wu-drivers-off", Level = Gamer, Category = TweakCategory.Gaming,
+            Name = "Windows Update não troca seu driver de vídeo",
+            Description = "O Windows Update às vezes substitui o driver da NVIDIA/AMD por uma versão antiga, derrubando o FPS. " +
+                "As atualizações do Windows continuam normais; só os drivers deixam de vir por ele.",
+            Settings = [new(LocalMachine, @"SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate", "ExcludeWUDriversInQualityUpdate", D(1))],
+        },
+        new RegistryTweak
+        {
+            Id = "mpo-off", Level = Manual, Category = TweakCategory.Gaming, RequiresRestart = true,
+            Name = "Corrigir tela piscando e travadinhas (MPO)",
+            Description = "Desliga o Multi-Plane Overlay, correção documentada pela NVIDIA para tela piscando, travadinhas e tela preta " +
+                "com dois monitores. Use só se tiver esses sintomas.",
+            Settings = [new(LocalMachine, @"SOFTWARE\Microsoft\Windows\Dwm", "OverlayTestMode", D(5))],
+        },
+        new RegistryTweak
+        {
             Id = "fullscreen-optimizations-off", Level = Extreme, Category = TweakCategory.Gaming,
             Name = "Tela cheia exclusiva de verdade",
             Description = "Desliga as \"otimizações de tela cheia\" do Windows. Alguns jogos antigos ganham FPS; o Alt+Tab fica mais lento.",
@@ -208,14 +299,7 @@ public static class TweakCatalog
             Description = "Envia pacotes pequenos na hora, sem agrupar. Reduz o ping percebido em jogos que usam TCP.",
             Values = [("TcpAckFrequency", D(1)), ("TCPNoDelay", D(1))],
         },
-        new NetworkInterfaceTweak
-        {
-            Id = "dns-cloudflare", Level = Manual, RequiresRestart = true,
-            Name = "DNS rápido (Cloudflare 1.1.1.1)",
-            Description = "Troca o DNS da operadora pelo da Cloudflare, geralmente mais rápido e privado. Desfazer volta ao DNS anterior.",
-            Values = [("NameServer", S("1.1.1.1,1.0.0.1"))],
-            AfterApply = [("ipconfig", "/flushdns")],
-        },
+        new NetworkAdapterPowerTweak(),
     ];
 
     private static IEnumerable<ITweak> Privacy() =>
@@ -292,6 +376,37 @@ public static class TweakCatalog
             Description = "Impede o Windows 11 de tirar capturas periódicas da sua tela para o recurso Recall.",
             Settings = [new(CurrentUser, @"Software\Policies\Microsoft\Windows\WindowsAI", "DisableAIDataAnalysis", D(1))],
         },
+        new ScheduledTaskTweak
+        {
+            Id = "telemetry-tasks-off", Level = Safe,
+            Name = "Tarefas escondidas de telemetria",
+            Description = "Tarefas agendadas que acordam sozinhas para coletar dados do PC e causam picos de disco e CPU do nada " +
+                "(ex.: Compatibility Appraiser). Ninguém vê, mas travam o jogo por um instante.",
+            Tasks =
+            [
+                @"\Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser",
+                @"\Microsoft\Windows\Application Experience\ProgramDataUpdater",
+                @"\Microsoft\Windows\Autochk\Proxy",
+                @"\Microsoft\Windows\Customer Experience Improvement Program\Consolidator",
+                @"\Microsoft\Windows\Customer Experience Improvement Program\UsbCeip",
+                @"\Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector",
+                @"\Microsoft\Windows\Feedback\Siuf\DmClient",
+                @"\Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload",
+                @"\Microsoft\Windows\Windows Error Reporting\QueueReporting",
+            ],
+        },
+        new RegistryTweak
+        {
+            Id = "tips-notifications-off", Level = Safe, Category = TweakCategory.Privacy,
+            Name = "Sem notificações de dicas",
+            Description = "Para as notificações de \"dicas e sugestões\" e a tela de boas-vindas depois de atualizações.",
+            Settings =
+            [
+                new(CurrentUser, @"Software\Microsoft\Windows\CurrentVersion\Notifications\Settings\Windows.SystemToast.Suggested", "Enabled", D(0)),
+                new(CurrentUser, ContentDelivery, "SubscribedContent-310093Enabled", D(0)),
+                new(CurrentUser, @"Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement", "ScoobeSystemSettingEnabled", D(0)),
+            ],
+        },
         new RegistryTweak
         {
             Id = "copilot-off", Level = Gamer, Category = TweakCategory.Privacy,
@@ -344,6 +459,41 @@ public static class TweakCatalog
             Name = "Fax",
             Description = "Serviço de fax, que praticamente ninguém usa mais.",
             Services = ["Fax"],
+        },
+        new ServiceTweak
+        {
+            Id = "svc-nvidia-telemetry", Level = Gamer,
+            Name = "Telemetria da NVIDIA",
+            Description = "Serviço de coleta de dados instalado junto com o driver de vídeo. O driver e o painel continuam funcionando.",
+            Services = ["NvTelemetryContainer"],
+        },
+        new ServiceTweak
+        {
+            Id = "svc-link-tracking", Level = Gamer,
+            Name = "Rastreamento de links distribuídos",
+            Description = "Acompanha atalhos para arquivos em outros PCs da rede corporativa. Inútil em PC doméstico.",
+            Services = ["TrkWks"],
+        },
+        new ServiceTweak
+        {
+            Id = "svc-media-sharing", Level = Gamer,
+            Name = "Compartilhamento do Windows Media Player",
+            Description = "Compartilha sua biblioteca de mídia na rede local em segundo plano.",
+            Services = ["WMPNetworkSvc"],
+        },
+        new ServiceTweak
+        {
+            Id = "svc-insider", Level = Gamer,
+            Name = "Programa Windows Insider",
+            Description = "Só é usado por quem testa versões beta do Windows.",
+            Services = ["wisvc"],
+        },
+        new ServiceTweak
+        {
+            Id = "svc-compat-assistant", Level = Extreme,
+            Name = "Assistente de compatibilidade de programas",
+            Description = "Monitora cada programa aberto para sugerir modos de compatibilidade. Consome recursos a cada execução.",
+            Services = ["PcaSvc"],
         },
         new ServiceTweak
         {

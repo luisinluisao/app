@@ -79,6 +79,15 @@
                                 <TextBlock Text="{Binding TotalCount}" Margin="8,0,0,0" Foreground="{StaticResource TextTertiary}" FontWeight="Normal" />
                             </StackPanel>
                         </RadioButton>
+                        <RadioButton Style="{StaticResource NavItem}" Tag="&#xE774;" Content="Rede"
+                                     IsChecked="{Binding CurrentPage, Converter={StaticResource Eq}, ConverterParameter=Network}" />
+                        <RadioButton Style="{StaticResource NavItem}" Tag="&#xE823;"
+                                     IsChecked="{Binding CurrentPage, Converter={StaticResource Eq}, ConverterParameter=Startup}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Inicialização" />
+                                <TextBlock Text="{Binding Startup.EnabledCount}" Margin="8,0,0,0" Foreground="{StaticResource TextTertiary}" FontWeight="Normal" />
+                            </StackPanel>
+                        </RadioButton>
                         <RadioButton Style="{StaticResource NavItem}" Tag="&#xE713;"
                                      IsChecked="{Binding CurrentPage, Converter={StaticResource Eq}, ConverterParameter=Bios}">
                             <StackPanel Orientation="Horizontal">
@@ -100,6 +109,8 @@
             <Grid Grid.Column="1">
                 <views:DashboardView Style="{StaticResource Page}" Visibility="{Binding CurrentPage, Converter={StaticResource EqVis}, ConverterParameter=Dashboard}" />
                 <views:OptimizeView Style="{StaticResource Page}" Visibility="{Binding CurrentPage, Converter={StaticResource EqVis}, ConverterParameter=Optimize}" />
+                <views:NetworkView Style="{StaticResource Page}" Visibility="{Binding CurrentPage, Converter={StaticResource EqVis}, ConverterParameter=Network}" />
+                <views:StartupView Style="{StaticResource Page}" Visibility="{Binding CurrentPage, Converter={StaticResource EqVis}, ConverterParameter=Startup}" />
                 <views:BiosView Style="{StaticResource Page}" Visibility="{Binding CurrentPage, Converter={StaticResource EqVis}, ConverterParameter=Bios}" />
                 <views:HistoryView Style="{StaticResource Page}" Visibility="{Binding CurrentPage, Converter={StaticResource EqVis}, ConverterParameter=History}" />
             </Grid>

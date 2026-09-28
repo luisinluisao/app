@@ -5,25 +5,42 @@ namespace Slyth.Core.Tests;
 
 internal sealed class FakeRegistry : IRegistry
 {
-    public Dictionary<(RegistryRoot, string, string), RegistryValue> Values { get; } = [];
+    /// <summary>Como no Windows: chaves e nomes sem diferenciar maiúsculas, mas preservando a grafia original.</summary>
+    public Dictionary<(RegistryRoot Root, string Key, string Name), RegistryValue> Values { get; } = new(new KeyComparer());
 
     public RegistryValue? GetValue(RegistryRoot root, string key, string name) =>
-        Values.TryGetValue((root, key.ToLowerInvariant(), name.ToLowerInvariant()), out var v) ? v : null;
+        Values.TryGetValue((root, key, name), out var v) ? v : null;
 
-    public void SetValue(RegistryRoot root, string key, string name, RegistryValue value) =>
-        Values[(root, key.ToLowerInvariant(), name.ToLowerInvariant())] = value;
+    public void SetValue(RegistryRoot root, string key, string name, RegistryValue value)
+    {
+        Values.Remove((root, key, name));
+        Values[(root, key, name)] = value;
+    }
 
-    public void DeleteValue(RegistryRoot root, string key, string name) =>
-        Values.Remove((root, key.ToLowerInvariant(), name.ToLowerInvariant()));
+    public void DeleteValue(RegistryRoot root, string key, string name) => Values.Remove((root, key, name));
+
+    public IReadOnlyList<string> GetValueNames(RegistryRoot root, string key) =>
+        Values.Keys.Where(k => k.Root == root && string.Equals(k.Key, key, StringComparison.OrdinalIgnoreCase)).Select(k => k.Name).ToList();
 
     public IReadOnlyList<string> GetSubKeyNames(RegistryRoot root, string key)
     {
-        var prefix = key.ToLowerInvariant() + "\\";
+        var prefix = key + "\\";
         return Values.Keys
-            .Where(k => k.Item1 == root && k.Item2.StartsWith(prefix, StringComparison.Ordinal))
-            .Select(k => k.Item2[prefix.Length..].Split('\\')[0])
-            .Distinct()
+            .Where(k => k.Root == root && k.Key.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            .Select(k => k.Key[prefix.Length..].Split('\\')[0])
+            .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
+    }
+
+    private sealed class KeyComparer : IEqualityComparer<(RegistryRoot Root, string Key, string Name)>
+    {
+        public bool Equals((RegistryRoot Root, string Key, string Name) x, (RegistryRoot Root, string Key, string Name) y) =>
+            x.Root == y.Root &&
+            string.Equals(x.Key, y.Key, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(x.Name, y.Name, StringComparison.OrdinalIgnoreCase);
+
+        public int GetHashCode((RegistryRoot Root, string Key, string Name) k) =>
+            HashCode.Combine(k.Root, k.Key.ToUpperInvariant(), k.Name.ToUpperInvariant());
     }
 }
 

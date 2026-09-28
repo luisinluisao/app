@@ -15,6 +15,9 @@ public enum RegistryValueType
 
     /// <summary>REG_MULTI_SZ; as linhas ficam separadas por '\n' em <see cref="RegistryValue.Data"/>.</summary>
     MultiString,
+
+    /// <summary>REG_BINARY em hexadecimal (ex.: "0300000000000000").</summary>
+    Binary,
 }
 
 /// <summary>Valor de registro serializável (usado também no backup em JSON).</summary>
@@ -37,4 +40,7 @@ public interface IRegistry
 
     /// <summary>Nomes das subchaves; vazio se a chave não existe.</summary>
     IReadOnlyList<string> GetSubKeyNames(RegistryRoot root, string key);
+
+    /// <summary>Nomes dos valores; vazio se a chave não existe.</summary>
+    IReadOnlyList<string> GetValueNames(RegistryRoot root, string key);
 }

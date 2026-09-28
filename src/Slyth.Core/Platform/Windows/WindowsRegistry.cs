@@ -24,6 +24,7 @@ public sealed class WindowsRegistry : IRegistry
             RegistryValueKind.QWord => new RegistryValue(RegistryValueType.QWord, Convert.ToString(raw, CultureInfo.InvariantCulture)!),
             RegistryValueKind.String => new RegistryValue(RegistryValueType.String, (string)raw!),
             RegistryValueKind.ExpandString => new RegistryValue(RegistryValueType.ExpandString, (string)raw!),
+            RegistryValueKind.Binary => new RegistryValue(RegistryValueType.Binary, Convert.ToHexString((byte[])raw!)),
             RegistryValueKind.MultiString => new RegistryValue(RegistryValueType.MultiString, string.Join('\n', (string[])raw!)),
             // Nunca sobrescrevemos um valor que não conseguimos salvar no backup.
             _ => throw new NotSupportedException($"Tipo de registro {kind} em {key}\\{name} não é suportado para backup."),
@@ -48,6 +49,9 @@ public sealed class WindowsRegistry : IRegistry
             case RegistryValueType.ExpandString:
                 subKey.SetValue(name, value.Data, RegistryValueKind.ExpandString);
                 break;
+            case RegistryValueType.Binary:
+                subKey.SetValue(name, Convert.FromHexString(value.Data), RegistryValueKind.Binary);
+                break;
             case RegistryValueType.MultiString:
                 subKey.SetValue(name, value.Data.Split('\n'), RegistryValueKind.MultiString);
                 break;
@@ -66,6 +70,13 @@ public sealed class WindowsRegistry : IRegistry
         using var baseKey = OpenBase(root);
         using var subKey = baseKey.OpenSubKey(key);
         return subKey?.GetSubKeyNames() ?? [];
+    }
+
+    public IReadOnlyList<string> GetValueNames(RegistryRoot root, string key)
+    {
+        using var baseKey = OpenBase(root);
+        using var subKey = baseKey.OpenSubKey(key);
+        return subKey?.GetValueNames() ?? [];
     }
 
     private static RegistryKey OpenBase(RegistryRoot root) => RegistryKey.OpenBaseKey(

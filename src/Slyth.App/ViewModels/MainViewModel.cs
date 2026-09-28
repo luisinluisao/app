@@ -8,6 +8,7 @@ using Slyth.Core.Backup;
 using Slyth.Core.Bios;
 using Slyth.Core.Optimization;
 using Slyth.Core.Platform.Windows;
+using Slyth.Core.Startup;
 using Slyth.Core.Tweaks;
 
 namespace Slyth.App.ViewModels;
@@ -45,6 +46,12 @@ public sealed class MainViewModel : ObservableObject
     public MainViewModel()
     {
         _optimizer = new Optimizer(_registry, _commands, _backups, new WindowsRestorePointService(_commands));
+        Network = new NetworkViewModel(_optimizer, async () =>
+        {
+            ReloadBackups();
+            await RefreshAppliedAsync();
+        }, ShowDialog);
+        Startup = new StartupViewModel(StartupManager.ForCurrentUser(_registry));
 
         Tweaks = new ObservableCollection<TweakItemViewModel>(TweakCatalog.All().Select(t => new TweakItemViewModel(t, UpdateCounts)));
         TweaksView = CollectionViewSource.GetDefaultView(Tweaks);
@@ -80,6 +87,10 @@ public sealed class MainViewModel : ObservableObject
     }
 
     public SystemMonitor Monitor { get; } = new();
+
+    public NetworkViewModel Network { get; }
+
+    public StartupViewModel Startup { get; }
 
     public ObservableCollection<TweakItemViewModel> Tweaks { get; }
 
@@ -231,6 +242,16 @@ public sealed class MainViewModel : ObservableObject
         MachineSummary = $"{Environment.MachineName} · {WindowsName()}";
         await RefreshAppliedAsync();
         ReloadBackups();
+        await Startup.LoadAsync();
+
+        try
+        {
+            Network.LoadAdapterInfo();
+        }
+        catch (Exception)
+        {
+            // Sem rede: a tela de Rede mostra o estado vazio.
+        }
 
         try
         {

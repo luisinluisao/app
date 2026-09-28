@@ -548,6 +548,19 @@
         </Setter>
     </Style>
 
+    <Style x:Key="MeterDim" TargetType="ProgressBar" BasedOn="{StaticResource Meter}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ProgressBar">
+                    <Grid>
+                        <Border x:Name="PART_Track" CornerRadius="2" Background="{StaticResource Elevated}" />
+                        <Border x:Name="PART_Indicator" CornerRadius="2" Background="#4A4A4A" HorizontalAlignment="Left" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- ===================== Barras de rolagem finas ===================== -->
     <Style x:Key="ThumbStyle" TargetType="Thumb">
         <Setter Property="Template">

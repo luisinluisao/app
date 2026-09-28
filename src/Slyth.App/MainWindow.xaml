@@ -79,6 +79,8 @@
                                 <TextBlock Text="{Binding TotalCount}" Margin="8,0,0,0" Foreground="{StaticResource TextTertiary}" FontWeight="Normal" />
                             </StackPanel>
                         </RadioButton>
+                        <RadioButton Style="{StaticResource NavItem}" Tag="&#xE9D9;" Content="Desempenho"
+                                     IsChecked="{Binding CurrentPage, Converter={StaticResource Eq}, ConverterParameter=Performance}" />
                         <RadioButton Style="{StaticResource NavItem}" Tag="&#xE774;" Content="Rede"
                                      IsChecked="{Binding CurrentPage, Converter={StaticResource Eq}, ConverterParameter=Network}" />
                         <RadioButton Style="{StaticResource NavItem}" Tag="&#xE823;"
@@ -109,6 +111,7 @@
             <Grid Grid.Column="1">
                 <views:DashboardView Style="{StaticResource Page}" Visibility="{Binding CurrentPage, Converter={StaticResource EqVis}, ConverterParameter=Dashboard}" />
                 <views:OptimizeView Style="{StaticResource Page}" Visibility="{Binding CurrentPage, Converter={StaticResource EqVis}, ConverterParameter=Optimize}" />
+                <views:PerformanceView Style="{StaticResource Page}" Visibility="{Binding CurrentPage, Converter={StaticResource EqVis}, ConverterParameter=Performance}" />
                 <views:NetworkView Style="{StaticResource Page}" Visibility="{Binding CurrentPage, Converter={StaticResource EqVis}, ConverterParameter=Network}" />
                 <views:StartupView Style="{StaticResource Page}" Visibility="{Binding CurrentPage, Converter={StaticResource EqVis}, ConverterParameter=Startup}" />
                 <views:BiosView Style="{StaticResource Page}" Visibility="{Binding CurrentPage, Converter={StaticResource EqVis}, ConverterParameter=Bios}" />
@@ -137,6 +140,8 @@
                             </Grid>
                             <TextBlock Text="Otimização concluída" Style="{StaticResource H1}" FontSize="26" HorizontalAlignment="Center" Margin="0,24,0,6" />
                             <TextBlock Style="{StaticResource Body}" TextAlignment="Center" Text="Backup salvo. Você pode desfazer tudo no Histórico." />
+                            <TextBlock Style="{StaticResource Body}" TextAlignment="Center" Foreground="{StaticResource TextPrimary}" Margin="0,6,0,0"
+                                       Text="Reinicie o PC: na próxima abertura o Slyth mede de novo e mostra o ganho real." />
                         </StackPanel>
 
                         <StackPanel DockPanel.Dock="Bottom" Margin="0,24,0,0">

@@ -8,6 +8,10 @@ Tudo o que ele muda é salvo antes e pode ser desfeito com um botão.
 - **Painel** — anel de pontuação animado (0–100), CPU e memória ao vivo com minigráficos, disco,
   processos, programas na inicialização e o botão **Otimizar** com três modos: **Seguro**, **Gamer** e **Extremo**.
 - **Otimizações** — os 71 ajustes com busca, filtro por categoria e interruptor em cada um.
+- **Desempenho** — teste antes/depois com 11 métricas reais: tempo de inicialização (registrado pelo
+  próprio Windows), memória em uso, CPU em repouso, processos, serviços, apps na inicialização, ping,
+  variação, resposta do DNS, espaço livre e pontuação. O Slyth mede sozinho na primeira abertura e de novo
+  depois que você otimiza e reinicia; só conta como ganho o que passa da margem normal de variação.
 - **Rede** — teste de ping, variação (jitter) e perda de pacotes com gráfico ao vivo, e comparação
   real de velocidade entre DNS (operadora, Cloudflare, Google, Quad9, OpenDNS) com troca em um clique.
 - **Inicialização** — programas que abrem com o Windows, com editor e local, para ligar/desligar

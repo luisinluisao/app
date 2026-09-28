@@ -7,6 +7,7 @@ using Slyth.Core;
 using Slyth.Core.Backup;
 using Slyth.Core.Bios;
 using Slyth.Core.Optimization;
+using Slyth.Core.Performance;
 using Slyth.Core.Platform.Windows;
 using Slyth.Core.Startup;
 using Slyth.Core.Tweaks;
@@ -51,7 +52,14 @@ public sealed class MainViewModel : ObservableObject
             ReloadBackups();
             await RefreshAppliedAsync();
         }, ShowDialog);
-        Startup = new StartupViewModel(StartupManager.ForCurrentUser(_registry));
+        var startupManager = StartupManager.ForCurrentUser(_registry);
+        Startup = new StartupViewModel(startupManager);
+        Performance = new PerformanceViewModel(
+            new WindowsPerformanceProbe(_commands, startupManager),
+            new SnapshotStore(SnapshotStore.DefaultDirectory),
+            () => Score,
+            ShowDialog,
+            () => CurrentPage = "Performance");
 
         Tweaks = new ObservableCollection<TweakItemViewModel>(TweakCatalog.All().Select(t => new TweakItemViewModel(t, UpdateCounts)));
         TweaksView = CollectionViewSource.GetDefaultView(Tweaks);
@@ -70,7 +78,7 @@ public sealed class MainViewModel : ObservableObject
         IsAdmin = new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator);
 
         NavigateCommand = new RelayCommand(p => CurrentPage = p as string ?? "Dashboard");
-        OptimizeCommand = new RelayCommand(Optimize, () => !IsBusy && SelectedCount > 0);
+        OptimizeCommand = new RelayCommand(Optimize, () => !IsBusy && SelectedCount > 0 && !Performance.IsMeasuring);
         SelectAllCommand = new RelayCommand(() => SetSelection(t => TweaksView.Filter(t) || t.IsSelected));
         SelectNoneCommand = new RelayCommand(() => SetSelection(_ => false));
         UndoLastCommand = new RelayCommand(() => ConfirmRevert(Backups.FirstOrDefault(b => b.CanRevert)), () => !IsBusy && Backups.Any(b => b.CanRevert));
@@ -91,6 +99,8 @@ public sealed class MainViewModel : ObservableObject
     public NetworkViewModel Network { get; }
 
     public StartupViewModel Startup { get; }
+
+    public PerformanceViewModel Performance { get; }
 
     public ObservableCollection<TweakItemViewModel> Tweaks { get; }
 
@@ -261,6 +271,8 @@ public sealed class MainViewModel : ObservableObject
         {
             Hardware.Add(new SpecRow("Erro", e.Message));
         }
+
+        await Performance.AutoMeasureAsync(Backups.FirstOrDefault()?.Session.CreatedAt);
     }
 
     private async void Optimize()

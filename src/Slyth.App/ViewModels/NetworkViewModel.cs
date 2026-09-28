@@ -102,13 +102,7 @@ public sealed class NetworkViewModel : ObservableObject
 
     public void LoadAdapterInfo()
     {
-        var active = NetworkInterface.GetAllNetworkInterfaces()
-            .Where(n => n.OperationalStatus == OperationalStatus.Up &&
-                        n.NetworkInterfaceType is not (NetworkInterfaceType.Loopback or NetworkInterfaceType.Tunnel))
-            .Select(n => (Nic: n, Props: n.GetIPProperties()))
-            .FirstOrDefault(x => x.Props.GatewayAddresses.Any(g => g.Address.AddressFamily == AddressFamily.InterNetwork));
-
-        if (active.Nic is null)
+        if (Services.NetworkInfo.ActiveInterface() is not { } active)
         {
             AdapterName = "Sem conexão";
             return;

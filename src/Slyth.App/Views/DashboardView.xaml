@@ -63,8 +63,14 @@
                                            Visibility="{Binding IsBusy, Converter={StaticResource BoolVis}}" />
                             </Grid>
                         </Button>
-                        <TextBlock Style="{StaticResource Label}" HorizontalAlignment="Center" Margin="0,14,0,0" FontWeight="Normal" FontSize="11"
-                                   Text="Ponto de restauração + backup automático antes de qualquer mudança" />
+                        <Grid Margin="0,14,0,0">
+                            <TextBlock Style="{StaticResource Label}" HorizontalAlignment="Center" FontWeight="Normal" FontSize="11"
+                                       Text="Ponto de restauração + backup automático antes de qualquer mudança"
+                                       Visibility="{Binding Performance.IsMeasuring, Converter={StaticResource NotBoolVis}}" />
+                            <TextBlock Style="{StaticResource Label}" HorizontalAlignment="Center" FontWeight="Normal" FontSize="11" Foreground="{StaticResource TextSecondary}"
+                                       Text="Medindo seu PC para mostrar o ganho depois..."
+                                       Visibility="{Binding Performance.IsMeasuring, Converter={StaticResource BoolVis}}" />
+                        </Grid>
                     </StackPanel>
 
                     <Grid Margin="0,0,0,24">
@@ -164,10 +170,13 @@
                 <Border Grid.Row="4" Grid.ColumnSpan="3" Style="{StaticResource Card}" Padding="24,10">
                     <StackPanel>
                         <Grid Height="46">
-                            <TextBlock Text="Ajustes ativos" Style="{StaticResource StatusLabel}" />
-                            <TextBlock Style="{StaticResource StatusValue}">
-                                <Run Text="{Binding AppliedCount, Mode=OneWay}" /><Run Text=" / " Foreground="{StaticResource TextTertiary}" /><Run Text="{Binding TotalCount, Mode=OneWay}" Foreground="{StaticResource TextTertiary}" />
-                            </TextBlock>
+                            <TextBlock Text="Ganho medido" Style="{StaticResource StatusLabel}" />
+                            <Button Style="{StaticResource LinkButton}" HorizontalAlignment="Right" Command="{Binding NavigateCommand}" CommandParameter="Performance">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Performance.ShortSummary}" FontSize="13" FontWeight="SemiBold" />
+                                    <TextBlock Text="&#xE76C;" Style="{StaticResource Icon}" FontSize="10" Margin="8,1,0,0" Foreground="{StaticResource TextTertiary}" />
+                                </StackPanel>
+                            </Button>
                         </Grid>
                         <Border Style="{StaticResource Divider}" />
                         <Grid Height="46">
